@@ -34,3 +34,5 @@ build/
 .vscode/
 
 derby.log
+/gallery_db
+ddl.sql

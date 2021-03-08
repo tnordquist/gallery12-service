@@ -1,0 +1,20 @@
+spring:
+  datasource:
+    url: jdbc:derby:gallery_db;create=true;collation=TERRITORY_BASED:PRIMARY
+  jpa:
+    database-platform: org.hibernate.dialect.DerbyTenSevenDialect
+    hibernate:
+      ddl-auto: update
+#    properties:
+#      javax:
+#        persistence:
+#          schema-generation:
+#            create-source: metadata
+#            scripts:
+#              action: create
+#              create-target: ddl.sql
+server:
+  port: 18181
+  servlet:
+    context-path: /gallery
+
