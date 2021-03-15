@@ -1,6 +1,5 @@
 package edu.cnm.deepdive.gallery12service.model.entity;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import java.util.Date;
 import java.util.LinkedList;
 import java.util.List;
@@ -12,6 +11,8 @@ import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.Index;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.OrderBy;
 import javax.persistence.Table;
@@ -25,19 +26,18 @@ import org.springframework.lang.NonNull;
 @SuppressWarnings("JpaDataSourceORMInspection")
 @Entity
 @Table(
-    name = "user_profile",
     indexes = {
         @Index(columnList = "created"),
-        @Index(columnList = "connected")
+        @Index(columnList = "title")
     }
 )
-public class User {
+public class Gallery {
 
   @NonNull
   @Id
   @GeneratedValue(generator = "uuid2")
   @GenericGenerator(name = "uuid2", strategy = "uuid2")
-  @Column(name = "user_id", nullable = false, updatable = false, columnDefinition = "CHAR(16) FOR BIT DATA")
+  @Column(name = "gallery_id", nullable = false, updatable = false, columnDefinition = "CHAR(16) FOR BIT DATA")
   private UUID id;
 
   @NonNull
@@ -47,28 +47,27 @@ public class User {
   private Date created;
 
   @NonNull
+  @UpdateTimestamp
   @Temporal(TemporalType.TIMESTAMP)
   @Column(nullable = false)
-  private Date connected;
+  private Date updated;
 
   @NonNull
-  @JsonIgnore
-  @Column(nullable = false, updatable = false, unique = true)
-  private String oauthKey;
+  @Column(length = 100, nullable = false)
+  private String title;
+
+  @Column(length = 1024)
+  private String description;
 
   @NonNull
-  @Column(nullable = false, unique = true)
-  private String displayName;
+  @ManyToOne(fetch = FetchType.EAGER, optional = false)
+  @JoinColumn(name = "creator_id", nullable = false, updatable = false)
+  private User creator;
 
-  @NonNull
-  @OneToMany(fetch = FetchType.LAZY, mappedBy = "contributor", cascade = CascadeType.ALL)
-  @OrderBy("created DESC")
+  @OneToMany(mappedBy = "gallery", fetch = FetchType.LAZY, cascade = {CascadeType.MERGE,
+      CascadeType.PERSIST, CascadeType.REFRESH})
+  @OrderBy("title ASC")
   private final List<Image> images = new LinkedList<>();
-
-  @NonNull
-  @OneToMany(fetch = FetchType.LAZY, mappedBy = "creator", cascade = CascadeType.ALL)
-  @OrderBy("created DESC")
-  private final List<Gallery> galleries = new LinkedList<>();
 
   @NonNull
   public UUID getId() {
@@ -81,39 +80,33 @@ public class User {
   }
 
   @NonNull
-  public Date getConnected() {
-    return connected;
-  }
-
-  public void setConnected(@NonNull Date connected) {
-    this.connected = connected;
+  public Date getUpdated() {
+    return updated;
   }
 
   @NonNull
-  public String getOauthKey() {
-    return oauthKey;
+  public User getCreator() {
+    return creator;
   }
 
-  public void setOauthKey(@NonNull String oauthKey) {
-    this.oauthKey = oauthKey;
-  }
-
-  @NonNull
-  public String getDisplayName() {
-    return displayName;
-  }
-
-  public void setDisplayName(@NonNull String displayName) {
-    this.displayName = displayName;
-  }
-
-  @NonNull
   public List<Image> getImages() {
     return images;
   }
 
   @NonNull
-  public List<Gallery> getGalleries() {
-    return galleries;
+  public String getTitle() {
+    return title;
+  }
+
+  public void setTitle(@NonNull String title) {
+    this.title = title;
+  }
+
+  public String getDescription() {
+    return description;
+  }
+
+  public void setDescription(String description) {
+    this.description = description;
   }
 }
