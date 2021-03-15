@@ -73,6 +73,16 @@ public class User {
   private final List<Gallery> galleries = new LinkedList<>();
 
   @NonNull
+  @OneToMany(fetch = FetchType.LAZY, mappedBy = "contributor", cascade = CascadeType.ALL)
+  @OrderBy("created DESC")
+  private final List<Image> images = new LinkedList<>();
+
+  @NonNull
+  @OneToMany(fetch = FetchType.LAZY, mappedBy = "creator", cascade = CascadeType.ALL)
+  @OrderBy("created DESC")
+  private final List<Gallery> galleries = new LinkedList<>();
+
+  @NonNull
   public UUID getId() {
     return id;
   }
