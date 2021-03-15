@@ -89,6 +89,10 @@ public class Gallery {
     return creator;
   }
 
+  public void setCreator(@NonNull User creator) {
+    this.creator = creator;
+  }
+
   public List<Image> getImages() {
     return images;
   }

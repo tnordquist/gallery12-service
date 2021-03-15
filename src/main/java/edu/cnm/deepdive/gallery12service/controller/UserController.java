@@ -1,5 +1,7 @@
 package edu.cnm.deepdive.gallery12service.controller;
 
+import static org.springframework.web.bind.annotation.RequestMethod.GET;
+
 import edu.cnm.deepdive.gallery12service.model.dao.UserRepository;
 import edu.cnm.deepdive.gallery12service.model.entity.User;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,7 +22,7 @@ public class UserController {
     this.userRepository = userRepository;
   }
 
-  @GetMapping(value = "/me", produces = MediaType.APPLICATION_JSON_VALUE)
+  @RequestMapping(method = GET, value = "/me", produces = MediaType.APPLICATION_JSON_VALUE)
   public User me(Authentication auth) {
     return (User) auth.getPrincipal();
   }
