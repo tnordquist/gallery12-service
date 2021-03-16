@@ -1,7 +1,10 @@
 package edu.cnm.deepdive.gallery12service.model.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import java.net.URI;
 import java.util.Date;
 import java.util.UUID;
+import javax.annotation.PostConstruct;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
@@ -16,7 +19,10 @@ import javax.persistence.TemporalType;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.GenericGenerator;
 import org.hibernate.annotations.UpdateTimestamp;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.hateoas.server.EntityLinks;
 import org.springframework.lang.NonNull;
+import org.springframework.stereotype.Component;
 
 @SuppressWarnings("JpaDataSourceORMInspection")
 @Entity
@@ -26,7 +32,10 @@ import org.springframework.lang.NonNull;
         @Index(columnList = "title")
     }
 )
+@Component
 public class Image {
+
+  private static EntityLinks entityLinks;
 
   @NonNull
   @Id
@@ -47,15 +56,20 @@ public class Image {
   @Column(nullable = false)
   private Date updated;
 
-  @NonNull
-  @Column(length = 100, nullable = false)
+  @Column(length = 100)
   private String title;
+
   @Column(length = 1024)
   private String description;
 
   @NonNull
   @Column(nullable = false, updatable = false)
   private String name;
+
+  @NonNull
+  @JsonIgnore
+  @Column(nullable = false, updatable = false)
+  private String key;
 
   @NonNull
   @Column(nullable = false, updatable = false)
@@ -90,12 +104,15 @@ public class Image {
     return contributor;
   }
 
-  @NonNull
+  public void setContributor(@NonNull User contributor) {
+    this.contributor = contributor;
+  }
+
   public String getTitle() {
     return title;
   }
 
-  public void setTitle(@NonNull String title) {
+  public void setTitle(String title) {
     this.title = title;
   }
 
@@ -117,6 +134,17 @@ public class Image {
   }
 
   @NonNull
+  public String getKey() {
+    return key;
+  }
+
+  public void setKey(@NonNull String key) {
+    this.key = key;
+  }
+
+  /**
+   * Returns the MIME type of this image.
+   */
   public String getContentType() {
     return contentType;
   }
@@ -127,5 +155,22 @@ public class Image {
 
   public Gallery getGallery() {
     return gallery;
+  }
+
+  public URI getHref() {
+    //noinspection ConstantConditions
+    return (id != null) ? entityLinks.linkForItemResource(Image.class, id).toUri() : null;
+  }
+
+  @PostConstruct
+  private void initHateoas() {
+    //noinspection ResultOfMethodCallIgnored
+    entityLinks.toString();
+  }
+
+  @Autowired
+  public void setEntityLinks(
+      @SuppressWarnings("SpringJavaInjectionPointsAutowiringInspection") EntityLinks entityLinks) {
+    Image.entityLinks = entityLinks;
   }
 }

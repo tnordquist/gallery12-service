@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.net.MalformedURLException;
 import java.nio.file.InvalidPathException;
 import org.springframework.core.io.Resource;
+import org.springframework.web.HttpMediaTypeException;
 import org.springframework.web.HttpMediaTypeNotAcceptableException;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -17,15 +18,15 @@ public interface StorageService {
    * @param file Uploaded file.
    * @return Opaque reference, to be used when retrieving or deleting the file from the store.
    * @throws IOException                         If the file cannot be written for any reason.
-   * @throws HttpMediaTypeNotAcceptableException If the content-type of {@code file} is not
+   * @throws org.springframework.web.HttpMediaTypeException If the content-type of {@code file} is not
    *                                             allowed.
    */
-  String store(MultipartFile file) throws IOException, HttpMediaTypeNotAcceptableException;
+  String store(MultipartFile file) throws IOException, org.springframework.web.HttpMediaTypeException;
 
-  Resource retrieve(String reference) throws InvalidPathException, MalformedURLException;
+  Resource retrieve(String key) throws IOException;
 
-  boolean delete(String reference)
-      throws InvalidPathException, UnsupportedOperationException, SecurityException;
+  boolean delete(String key)
+      throws IOException, UnsupportedOperationException, SecurityException;
 
   class StorageReference {
 
@@ -47,20 +48,20 @@ public interface StorageService {
 
   }
 
-  class ForbiddenMimeTypeException extends RuntimeException {
+  class HttpMediaTypeException extends RuntimeException {
 
-    public ForbiddenMimeTypeException() {
+    public HttpMediaTypeException() {
     }
 
-    public ForbiddenMimeTypeException(String message) {
+    public HttpMediaTypeException(String message) {
       super(message);
     }
 
-    public ForbiddenMimeTypeException(String message, Throwable cause) {
+    public HttpMediaTypeException(String message, Throwable cause) {
       super(message, cause);
     }
 
-    public ForbiddenMimeTypeException(Throwable cause) {
+    public HttpMediaTypeException(Throwable cause) {
       super(cause);
     }
 

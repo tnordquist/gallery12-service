@@ -28,7 +28,6 @@ import org.springframework.core.io.UrlResource;
 import org.springframework.http.MediaType;
 import org.springframework.lang.NonNull;
 import org.springframework.stereotype.Service;
-import org.springframework.web.HttpMediaTypeNotAcceptableException;
 import org.springframework.web.multipart.MultipartFile;
 
 /**
@@ -39,17 +38,17 @@ import org.springframework.web.multipart.MultipartFile;
 @Service
 public class LocalFilesystemStorageService implements StorageService {
 
-  private static final String REFERENCE_PATH_DELIMITER = "/";
-  private static final String REFERENCE_PATH_FORMAT = "%s" + REFERENCE_PATH_DELIMITER + "%s";
+  private static final String KEY_PATH_DELIMITER = "/";
+  private static final String KEY_PATH_FORMAT = "%s" + KEY_PATH_DELIMITER + "%s";
+  private static final String INVALID_MEDIA_FORMAT = "%s is not allowed in this storage service.";
 
   private final Random rng;
   private final Path uploadDirectory;
-  private final DateFormat formatter;
-  private final String unknownFilename;
   private final Pattern subdirectoryPattern;
+  private final Set<String> whitelist;
+  private final DateFormat formatter;
   private final String filenameFormat;
   private final int randomizerLimit;
-  private final Set<String> whitelist;
   private final List<MediaType> contentTypes;
 
   @Autowired
@@ -69,11 +68,28 @@ public class LocalFilesystemStorageService implements StorageService {
     contentTypes = whitelist.stream()
         .map(MediaType::valueOf)
         .collect(Collectors.toList());
-    unknownFilename = filenameProperties.getUnknown();
     filenameFormat = filenameProperties.getFormat();
     randomizerLimit = filenameProperties.getRandomizerLimit();
     formatter = new SimpleDateFormat(timestampProperties.getFormat());
     formatter.setTimeZone(TimeZone.getTimeZone(timestampProperties.getTimeZone()));
+  }
+
+  @Override
+  public String store(MultipartFile file) throws IOException, HttpMediaTypeException {
+    if (!whitelist.contains(file.getContentType())) {
+      throw new HttpMediaTypeException(String.format(INVALID_MEDIA_FORMAT, file.getContentType()),
+          (Throwable) contentTypes) {
+      };
+    }
+    String originalFilename = file.getOriginalFilename();
+    String newFileName = String.format(filenameFormat, formatter.format(new Date()),
+        rng.nextInt(randomizerLimit),
+        getExtension((originalFilename != null) ? originalFilename : ""));
+    String subdirectory = getSubdirectory(newFileName);
+    Path resolvedPath = uploadDirectory.resolve(subdirectory);
+    resolvedPath.toFile().mkdirs();
+    Files.copy(file.getInputStream(), resolvedPath.resolve(newFileName));
+    return String.format(KEY_PATH_FORMAT, subdirectory, newFileName);
   }
 
   @PostConstruct
@@ -82,57 +98,28 @@ public class LocalFilesystemStorageService implements StorageService {
     uploadDirectory.toFile().mkdirs();
   }
 
-  /*@Override
-  public StorageReference store(MultipartFile file) throws IOException, ForbiddenMimeTypeException {
-    if (!contentTypes.contains(file.getContentType())) {
-      throw new ForbiddenMimeTypeException();
-    }
-    String originalFilename = file.getOriginalFilename();
-    if (originalFilename == null) {
-      originalFilename = unknownFilename;
-    }
-    originalFilename = new File(originalFilename).getName();
-    String newFilename = String.format(filenameFormat, formatter.format(new Date()),
-        rng.nextInt(randomizerLimit), getExtension(originalFilename));
-    Files.copy(file.getInputStream(), uploadDirectory.resolve(newFilename));
-    return new StorageReference(originalFilename, newFilename);
-  }*/
-
   @Override
-  public String store(MultipartFile file) throws IOException, HttpMediaTypeNotAcceptableException {
-    if (!whitelist.contains(file.getContentType())) {
-      throw new HttpMediaTypeNotAcceptableException(contentTypes);
-    }
-    String originalFilename = file.getOriginalFilename();
-    String newFilename = String.format(filenameFormat,
-        formatter.format(new Date()), rng.nextInt(randomizerLimit),
-        getExtension((originalFilename != null) ? originalFilename : ""));
-    String subdirectory = getSubdirectory(newFilename);
-    Path resolvedPath = uploadDirectory.resolve(subdirectory);
-    //noinspection ResultOfMethodCallIgnored
-    resolvedPath.toFile().mkdirs();
-    Files.copy(file.getInputStream(), resolvedPath.resolve(newFilename));
-    return String.format(REFERENCE_PATH_FORMAT, subdirectory, newFilename);
-  }
-
-
-  @Override
-  public Resource retrieve(String reference) throws InvalidPathException, MalformedURLException {
-    Path file = uploadDirectory.resolve(reference);
+  public Resource retrieve(String key) throws InvalidPathException, MalformedURLException {
+    Path file = uploadDirectory.resolve(key);
     return new UrlResource(file.toUri());
   }
 
   @Override
-  public boolean delete(String reference)
-      throws InvalidPathException, UnsupportedOperationException, SecurityException {
-    File file = uploadDirectory.resolve(reference).toFile();
-    return file.delete();
+  public boolean delete(String key)
+      throws IOException, UnsupportedOperationException, SecurityException {
+    try {
+      File file = uploadDirectory.resolve(key).toFile();
+      return file.delete();
+    } catch (InvalidPathException e) {
+      throw new IOException(e);
+    }
   }
 
   @NonNull
   private String getExtension(@NonNull String filename) {
     int position;
-    return ((position = filename.lastIndexOf('.')) >= 0) ? filename.substring(position + 1) : "";
+    position = filename.lastIndexOf('.');
+    return ((position) >= 0) ? filename.substring(position + 1) : "";
   }
 
   private String getSubdirectory(@NonNull String filename) {
@@ -141,7 +128,7 @@ public class LocalFilesystemStorageService implements StorageService {
     if (matcher.matches()) {
       path = IntStream.rangeClosed(1, matcher.groupCount())
           .mapToObj(matcher::group)
-          .collect(Collectors.joining(REFERENCE_PATH_DELIMITER));
+          .collect(Collectors.joining(KEY_PATH_DELIMITER));
     } else {
       path = "";
     }
