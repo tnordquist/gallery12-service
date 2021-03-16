@@ -38,10 +38,9 @@ import org.springframework.stereotype.Component;
     }
 )
 @Component
-@ExposesResourceFor(Gallery.class)
 public class Gallery {
 
-//  private final EntityLinks entityLinks;
+  private static EntityLinks entityLinks;
 
   @NonNull
   @Id
@@ -124,20 +123,20 @@ public class Gallery {
     this.description = description;
   }
 
-/*  public URI getHref() {
+  public URI getHref() {
     //noinspection ConstantConditions
-    return (id != null) ? entityLinks.linkForItemResource(User.class, id).toUri() : null;
+    return (id != null) ? entityLinks.linkForItemResource(Gallery.class, id).toUri() : null;
   }
 
   @PostConstruct
   private void initHateoas() {
     //noinspection ResultOfMethodCallIgnored
     entityLinks.toString();
-  }*/
+  }
 
-/*  @Autowired
+  @Autowired
   public void setEntityLinks(
       @SuppressWarnings("SpringJavaInjectionPointsAutowiringInspection") EntityLinks entityLinks) {
     Gallery.entityLinks = entityLinks;
-  }*/
+  }
 }
