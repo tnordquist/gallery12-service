@@ -4,6 +4,7 @@ import edu.cnm.deepdive.gallery12service.model.entity.Gallery;
 import edu.cnm.deepdive.gallery12service.model.entity.User;
 import edu.cnm.deepdive.gallery12service.service.GalleryService;
 import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -22,7 +23,8 @@ public class GalleryController {
   }
 
   @PostMapping(consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
-  public Gallery post(@RequestBody Gallery gallery, Authentication auth) {
-    return galleryService.newGallery(gallery, (User) auth.getPrincipal());
+  public ResponseEntity<Gallery> post(@RequestBody Gallery gallery, Authentication auth) {
+    gallery = galleryService.newGallery(gallery, (User) auth.getPrincipal());
+    return ResponseEntity.created(gallery.getHref()).body(gallery);
   }
 }
