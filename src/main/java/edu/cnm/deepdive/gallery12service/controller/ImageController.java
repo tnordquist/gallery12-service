@@ -53,8 +53,8 @@ public class ImageController {
     return ResponseEntity.created(image.getHref()).body(image);
   }
 
-  @GetMapping(value = "{/id}", produces = MediaType.APPLICATION_JSON_VALUE)
-  public Image get(UUID id, Authentication auth) {
+  @GetMapping(value = "/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
+  public Image get(@PathVariable UUID id, Authentication auth) {
     return imageService
         .get(id)
         .orElseThrow();

@@ -157,6 +157,10 @@ public class Image {
     return gallery;
   }
 
+  public void setGallery(Gallery gallery) {
+    this.gallery = gallery;
+  }
+
   public URI getHref() {
     //noinspection ConstantConditions
     return (id != null) ? entityLinks.linkForItemResource(Image.class, id).toUri() : null;

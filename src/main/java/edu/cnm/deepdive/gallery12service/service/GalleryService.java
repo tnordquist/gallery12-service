@@ -5,6 +5,7 @@ import edu.cnm.deepdive.gallery12service.model.entity.Gallery;
 import edu.cnm.deepdive.gallery12service.model.entity.User;
 import java.util.Optional;
 import java.util.UUID;
+import org.springframework.lang.NonNull;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -19,6 +20,10 @@ public class GalleryService {
 
   public Gallery newGallery(Gallery gallery, User creator) {
     gallery.setCreator(creator);
+    return galleryRepository.save(gallery);
+  }
+
+  public Gallery save(@NonNull Gallery gallery) {
     return galleryRepository.save(gallery);
   }
 
