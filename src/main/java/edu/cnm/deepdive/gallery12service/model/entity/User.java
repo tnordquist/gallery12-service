@@ -1,6 +1,9 @@
 package edu.cnm.deepdive.gallery12service.model.entity;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonView;
+import edu.cnm.deepdive.gallery12service.view.GalleryViews;
+import edu.cnm.deepdive.gallery12service.view.ImageViews;
 import java.net.URI;
 import java.util.Date;
 import java.util.LinkedList;
@@ -38,7 +41,7 @@ import org.springframework.stereotype.Component;
     }
 )
 @Component
-@ExposesResourceFor(User.class)
+@JsonView({GalleryViews.Hierarchical.class, ImageViews.Hierarchical.class})
 public class User {
 
   private static EntityLinks entityLinks;

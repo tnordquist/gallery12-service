@@ -2,9 +2,13 @@ package edu.cnm.deepdive.gallery12service.controller;
 
 import static org.springframework.web.bind.annotation.RequestMethod.GET;
 
+import com.fasterxml.jackson.annotation.JsonView;
+import edu.cnm.deepdive.gallery12service.model.entity.Image;
 import edu.cnm.deepdive.gallery12service.model.entity.User;
 import edu.cnm.deepdive.gallery12service.service.UserService;
+import edu.cnm.deepdive.gallery12service.view.ImageViews;
 import java.util.UUID;
+import java.util.function.Function;
 import org.springframework.hateoas.server.ExposesResourceFor;
 import org.springframework.http.MediaType;
 import org.springframework.security.core.Authentication;
@@ -33,6 +37,14 @@ public class UserController {
   public User get(@PathVariable UUID id, Authentication auth) {
     return userService
         .get(id)
+        .orElseThrow();
+  }
+
+  @GetMapping(value = "/{id}/images", produces = MediaType.APPLICATION_JSON_VALUE)
+  @JsonView(ImageViews.Flat.class)
+  public Iterable<Image> getImages(@PathVariable UUID id, Authentication auth) {
+    return userService.get(id)
+        .map(User::getImages)
         .orElseThrow();
   }
 }

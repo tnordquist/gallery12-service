@@ -1,6 +1,9 @@
 package edu.cnm.deepdive.gallery12service.model.entity;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonView;
+import edu.cnm.deepdive.gallery12service.view.GalleryViews;
+import edu.cnm.deepdive.gallery12service.view.ImageViews;
 import java.net.URI;
 import java.util.Date;
 import java.util.UUID;
@@ -33,6 +36,7 @@ import org.springframework.stereotype.Component;
     }
 )
 @Component
+@JsonView({GalleryViews.Hierarchical.class, ImageViews.Flat.class})
 public class Image {
 
   private static EntityLinks entityLinks;
@@ -78,10 +82,12 @@ public class Image {
   @NonNull
   @ManyToOne(fetch = FetchType.EAGER, optional = false)
   @JoinColumn(name = "contributor_id", nullable = false, updatable = false)
+  @JsonView(ImageViews.Hierarchical.class)
   private User contributor;
 
   @ManyToOne(fetch = FetchType.EAGER)
   @JoinColumn(name = "gallery_id")
+  @JsonView(ImageViews.Hierarchical.class)
   private Gallery gallery;
 
   @NonNull

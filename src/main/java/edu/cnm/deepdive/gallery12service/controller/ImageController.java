@@ -1,8 +1,10 @@
 package edu.cnm.deepdive.gallery12service.controller;
 
+import com.fasterxml.jackson.annotation.JsonView;
 import edu.cnm.deepdive.gallery12service.model.entity.Image;
 import edu.cnm.deepdive.gallery12service.model.entity.User;
 import edu.cnm.deepdive.gallery12service.service.ImageService;
+import edu.cnm.deepdive.gallery12service.view.ImageViews;
 import java.io.IOException;
 import java.util.UUID;
 import org.springframework.core.io.Resource;
@@ -42,6 +44,7 @@ public class ImageController {
    * @param auth        Authentication token with {@link User} principal.
    * @return Instance of {@link Image} created &amp; persisted for the uploaded content.
    */
+  @JsonView(ImageViews.Hierarchical.class)
   @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
   public ResponseEntity<Image> post(
       @RequestParam MultipartFile file,
@@ -53,6 +56,7 @@ public class ImageController {
     return ResponseEntity.created(image.getHref()).body(image);
   }
 
+  @JsonView(ImageViews.Hierarchical.class)
   @GetMapping(value = "/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
   public Image get(@PathVariable UUID id, Authentication auth) {
     return imageService

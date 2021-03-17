@@ -1,5 +1,8 @@
 package edu.cnm.deepdive.gallery12service.model.entity;
 
+import com.fasterxml.jackson.annotation.JsonView;
+import edu.cnm.deepdive.gallery12service.view.GalleryViews;
+import edu.cnm.deepdive.gallery12service.view.ImageViews;
 import java.net.URI;
 import java.util.Date;
 import java.util.LinkedList;
@@ -38,6 +41,7 @@ import org.springframework.stereotype.Component;
     }
 )
 @Component
+@JsonView({GalleryViews.Flat.class, ImageViews.Hierarchical.class})
 public class Gallery {
 
   private static EntityLinks entityLinks;
@@ -71,11 +75,13 @@ public class Gallery {
   @NonNull
   @ManyToOne(fetch = FetchType.EAGER, optional = false)
   @JoinColumn(name = "creator_id", nullable = false, updatable = false)
+  @JsonView(GalleryViews.Hierarchical.class)
   private User creator;
 
   @OneToMany(mappedBy = "gallery", fetch = FetchType.LAZY, cascade = {CascadeType.MERGE,
       CascadeType.PERSIST, CascadeType.REFRESH})
   @OrderBy("title ASC")
+  @JsonView(GalleryViews.Hierarchical.class)
   private final List<Image> images = new LinkedList<>();
 
   @NonNull
