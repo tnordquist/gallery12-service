@@ -11,6 +11,11 @@ spring:
     database-platform: org.hibernate.dialect.DerbyTenSevenDialect
     hibernate:
       ddl-auto: update
+  servlet:
+    multipart:
+      enabled: true
+      max-file-size: 10MB
+      max-request-size: 15MB
 #    properties:
 #      javax:
 #        persistence:
@@ -19,6 +24,7 @@ spring:
 #            scripts:
 #              action: create
 #              create-target: ddl.sql
+
 server:
   port: 18181
   servlet:
@@ -55,4 +61,3 @@ upload:
       format: yyyyMMddHHmmssSSS
       # Timezone to use in computing timestamp (not necessarily displayed).
       timeZone: UTC
-

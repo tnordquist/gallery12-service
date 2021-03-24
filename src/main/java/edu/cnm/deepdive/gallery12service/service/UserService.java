@@ -24,7 +24,7 @@ public class UserService implements Converter<Jwt, UsernamePasswordAuthenticatio
     this.userRepository = repository;
   }
 
-    public User getOrCreate(String oauthKey, String displayName) {
+  public User getOrCreate(String oauthKey, String displayName) {
     return userRepository.findFirstByOauthKey(oauthKey)
         .map((user) -> {
           user.setConnected(new Date());
