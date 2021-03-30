@@ -1,8 +1,10 @@
 package edu.cnm.deepdive.gallery12service.controller;
 
 import com.fasterxml.jackson.annotation.JsonView;
+import edu.cnm.deepdive.gallery12service.model.entity.Gallery;
 import edu.cnm.deepdive.gallery12service.model.entity.Image;
 import edu.cnm.deepdive.gallery12service.model.entity.User;
+import edu.cnm.deepdive.gallery12service.service.GalleryService;
 import edu.cnm.deepdive.gallery12service.service.ImageService;
 import edu.cnm.deepdive.gallery12service.view.ImageViews;
 import java.io.IOException;
@@ -28,11 +30,14 @@ import org.springframework.web.multipart.MultipartFile;
 public class ImageController {
 
   private final ImageService imageService;
+  private final GalleryService galleryService;
 
   private static final String ATTACHMENT_DISPOSITION_FORMAT = "attachment: filename=\"%s\"";
 
-  public ImageController(ImageService imageService) {
+  public ImageController(ImageService imageService,
+      GalleryService galleryService) {
     this.imageService = imageService;
+    this.galleryService = galleryService;
   }
 
   /**
@@ -45,15 +50,16 @@ public class ImageController {
    * @return Instance of {@link Image} created &amp; persisted for the uploaded content.
    */
   @JsonView(ImageViews.Hierarchical.class)
-  @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
+  @PostMapping(value = "/{galleryId}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
   public ResponseEntity<Image> post(
+      @PathVariable(required = false) UUID galleryId,
       @RequestParam MultipartFile file,
       @RequestParam(required = false) String title,
       @RequestParam(required = false) String description,
       Authentication auth) throws IOException, HttpMediaTypeException {
-
-    Image image = imageService.store(file, title, description, (User) auth.getPrincipal());
-    return ResponseEntity.created(image.getHref()).body(image);
+    return galleryService.get(galleryId)
+        .map((gallery) -> securePost(file, (User) auth.getPrincipal(), gallery, title, description))
+        .orElseThrow(ImageNotFoundException::new);
   }
 
   @JsonView(ImageViews.Hierarchical.class)
@@ -89,4 +95,17 @@ public class ImageController {
   public Iterable<Image> list(Authentication auth) {
     return imageService.list();
   }
+
+  private ResponseEntity<Image> securePost(MultipartFile file, User user, Gallery gallery,
+      String title, String description) {
+    try {
+      Image image = imageService.store(file,title, description, user, gallery);
+      return ResponseEntity.created(image.getHref()).body(image);
+    } catch (IOException e) {
+      throw new StorageException(e);
+    } catch (HttpMediaTypeException e) {
+      throw new MimeTypeNotAllowedException();
+    }
+  }
+
 }
