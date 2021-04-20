@@ -7,9 +7,9 @@ import edu.cnm.deepdive.gallery12service.model.entity.User;
 import edu.cnm.deepdive.gallery12service.service.GalleryService;
 import edu.cnm.deepdive.gallery12service.service.ImageService;
 import edu.cnm.deepdive.gallery12service.view.GalleryViews;
-import edu.cnm.deepdive.gallery12service.view.ImageViews;
 import java.io.IOException;
 import java.util.UUID;
+import org.springframework.context.annotation.Profile;
 import org.springframework.hateoas.server.ExposesResourceFor;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -28,6 +28,7 @@ import org.springframework.web.multipart.MultipartFile;
 @RestController
 @RequestMapping("/galleries")
 @ExposesResourceFor(Gallery.class)
+@Profile("service")
 public class GalleryController {
 
   private final GalleryService galleryService;

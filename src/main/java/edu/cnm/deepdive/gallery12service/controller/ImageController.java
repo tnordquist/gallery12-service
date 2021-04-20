@@ -9,6 +9,7 @@ import edu.cnm.deepdive.gallery12service.service.ImageService;
 import edu.cnm.deepdive.gallery12service.view.ImageViews;
 import java.io.IOException;
 import java.util.UUID;
+import org.springframework.context.annotation.Profile;
 import org.springframework.core.io.Resource;
 import org.springframework.hateoas.server.ExposesResourceFor;
 import org.springframework.http.HttpHeaders;
@@ -27,6 +28,7 @@ import org.springframework.web.multipart.MultipartFile;
 @RestController
 @RequestMapping("/images")
 @ExposesResourceFor(Image.class)
+@Profile("service")
 public class ImageController {
 
   private final ImageService imageService;

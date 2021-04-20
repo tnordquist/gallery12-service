@@ -7,6 +7,7 @@ import edu.cnm.deepdive.gallery12service.model.entity.User;
 import java.io.IOException;
 import java.util.Optional;
 import java.util.UUID;
+import org.springframework.context.annotation.Profile;
 import org.springframework.core.io.Resource;
 import org.springframework.http.MediaType;
 import org.springframework.lang.NonNull;
@@ -15,6 +16,7 @@ import org.springframework.web.HttpMediaTypeException;
 import org.springframework.web.multipart.MultipartFile;
 
 @Service
+@Profile("service")
 public class ImageService {
 
   private static final String UNTITLED_FILENAME = "untitled";
