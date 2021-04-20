@@ -3,6 +3,7 @@ package edu.cnm.deepdive.gallery12service.service;
 import edu.cnm.deepdive.gallery12service.model.dao.GalleryRepository;
 import edu.cnm.deepdive.gallery12service.model.entity.Gallery;
 import edu.cnm.deepdive.gallery12service.model.entity.User;
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 import org.springframework.lang.NonNull;
@@ -25,6 +26,10 @@ public class GalleryService {
 
   public Gallery save(@NonNull Gallery gallery) {
     return galleryRepository.save(gallery);
+  }
+
+  public Iterable<Gallery> save(@NonNull Iterable<Gallery> galleries) {
+    return galleryRepository.saveAll(galleries);
   }
 
   public Optional<Gallery> get(UUID id) {

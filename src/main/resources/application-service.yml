@@ -1,0 +1,51 @@
+spring:
+  application:
+    name: service
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          issuer-uri: https://accounts.google.com
+          client-id: 931668429138-jc745dkhgecfhl0gvhb2gku9dna8bn9o.apps.googleusercontent.com
+  servlet:
+    multipart:
+      enabled: true
+      max-file-size: 10MB
+      max-request-size: 15MB
+
+server:
+  port: 18181
+  servlet:
+    context-path: /gallery
+
+upload:
+  # Flag specifying whether the location of the JAR (or class files, if not in a JAR) will also be
+  # the location of the uploads directory.
+  applicationHome: true
+  # The upload directory path/name, relative to the application home (or, if applicationHome is
+  # false, then the working directory).
+  directory: uploads
+  subdirectory-pattern: "^(.{4})(.{2})(.{2}).*$"
+  # Allowed MIME types of uploaded files.
+  whitelist:
+    - image/bmp
+    - image/gif
+    - image/jpeg
+    - image/pjpegf
+    - image/png
+    - image/tiff
+  # Properties of the filenames generated for uploaded files.
+  filename:
+    # Name used if the uploaded file does not include filename metadata (unlikely).
+    unknown: (unknown)
+    # Format of generated file names, including timestamp (placeholder 1), random number
+    # (placeholder 2), and extension (placeholder 3).
+    format: "%1$s-%2$d.%3$s"
+    # Upper bound (exclusive) for random number portion of filename.
+    randomizerLimit: 1000000
+    # Properties for the timestamp portion of the filename.
+    timestamp:
+      # Timestamp format.
+      format: yyyyMMddHHmmssSSS
+      # Timezone to use in computing timestamp (not necessarily displayed).
+      timeZone: UTC
