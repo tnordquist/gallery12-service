@@ -1,8 +1,10 @@
 package edu.cnm.deepdive.gallery12service.controller;
 
 import com.fasterxml.jackson.annotation.JsonView;
+import edu.cnm.deepdive.gallery12service.model.entity.Gallery;
 import edu.cnm.deepdive.gallery12service.model.entity.Image;
 import edu.cnm.deepdive.gallery12service.model.entity.User;
+import edu.cnm.deepdive.gallery12service.service.GalleryService;
 import edu.cnm.deepdive.gallery12service.service.ImageService;
 import edu.cnm.deepdive.gallery12service.view.ImageViews;
 import java.io.IOException;
@@ -28,32 +30,14 @@ import org.springframework.web.multipart.MultipartFile;
 public class ImageController {
 
   private final ImageService imageService;
+  private final GalleryService galleryService;
 
   private static final String ATTACHMENT_DISPOSITION_FORMAT = "attachment: filename=\"%s\"";
 
-  public ImageController(ImageService imageService) {
+  public ImageController(ImageService imageService,
+      GalleryService galleryService) {
     this.imageService = imageService;
-  }
-
-  /**
-   * Stores uploaded file content along with a new {@link Image} instance referencing the content.
-   *
-   * @param title       Summary of uploaded content.
-   * @param description Detailed description of uploaded content.
-   * @param file        MIME content of single file upload.
-   * @param auth        Authentication token with {@link User} principal.
-   * @return Instance of {@link Image} created &amp; persisted for the uploaded content.
-   */
-  @JsonView(ImageViews.Hierarchical.class)
-  @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
-  public ResponseEntity<Image> post(
-      @RequestParam MultipartFile file,
-      @RequestParam(required = false) String title,
-      @RequestParam(required = false) String description,
-      Authentication auth) throws IOException, HttpMediaTypeException {
-
-    Image image = imageService.store(file, title, description, (User) auth.getPrincipal());
-    return ResponseEntity.created(image.getHref()).body(image);
+    this.galleryService = galleryService;
   }
 
   @JsonView(ImageViews.Hierarchical.class)
@@ -83,4 +67,12 @@ public class ImageController {
         })
         .orElseThrow();
   }
+
+  @JsonView(ImageViews.Flat.class)
+  @GetMapping(produces = MediaType.APPLICATION_JSON_VALUE)
+  public Iterable<Image> list(Authentication auth) {
+    return imageService.list();
+  }
+
+
 }

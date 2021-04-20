@@ -35,3 +35,8 @@ build/
 derby.log
 /gallery_db
 ddl.sql
+
+### Floobits ###
+# - metadata
+.floo
+.flooignore
