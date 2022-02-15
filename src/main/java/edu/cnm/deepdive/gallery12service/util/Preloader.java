@@ -37,13 +37,7 @@ public class Preloader implements CommandLineRunner {
     User user = userService.getOrCreate(PRELOADER_OATH_KEY, PRELOADER_USERNAME);
     ClassPathResource resource = new ClassPathResource(PRELOADER_DATA);
     try (InputStream input = resource.getInputStream()) {
-//      List<Gallery> galleries = new LinkedList<>();
       ObjectMapper mapper = new ObjectMapper();
-//      for (Gallery gallery : mapper.readValue(input, Gallery[].class)) {
-//        gallery.setCreator(user);
-//        galleries.add(gallery);
-//      }
-//      galleryService.save(galleries);}
       galleryService.save(
           Stream
               .of(mapper.readValue(input, Gallery[].class))

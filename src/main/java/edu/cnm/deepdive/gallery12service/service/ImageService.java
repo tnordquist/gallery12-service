@@ -44,6 +44,7 @@ public class ImageService {
 
   /**
    * Selects and returns all images
+   *
    * @return images
    */
   public Iterable<Image> list() {
@@ -64,7 +65,8 @@ public class ImageService {
     return storageService.retrieve(image.getKey());
   }
 
-  public Image store(@NonNull MultipartFile file, String title, String description, @NonNull User contributor, Gallery gallery)
+  public Image store(@NonNull MultipartFile file, String title, String description,
+      @NonNull User contributor, Gallery gallery)
       throws IOException, HttpMediaTypeException {
     String originalFilename = file.getOriginalFilename();
     String contentType = file.getContentType();
@@ -74,7 +76,8 @@ public class ImageService {
     image.setDescription(description);
     image.setContributor(contributor);
     image.setName((originalFilename != null) ? originalFilename : UNTITLED_FILENAME);
-    image.setContentType((contentType != null) ? contentType: MediaType.APPLICATION_OCTET_STREAM_VALUE);
+    image.setContentType(
+        (contentType != null) ? contentType : MediaType.APPLICATION_OCTET_STREAM_VALUE);
     image.setKey(key);
     image.setGallery(gallery);
     return imageRepository.save(image);
